@@ -1,15 +1,19 @@
 import Header from "../components/Header";
-import { Button } from 'antd'
 import axios from 'axios'
+import UploadBook from "../components/UploadBook";
+import { Layout } from 'antd'
+
 function IndexPage() {
-	const test = () => {
-		axios.get('/api/getRawToken').then(res => {
-			console.log(res.data)
-		})
-	}
+
 	return <>
 		<Header />
-		<Button onClick={test} >test</Button>
+		<Layout.Content style={{ padding: '10px 50px' }}>
+			<div className="flex">
+				<div className="flex justify-end w-full">
+					<UploadBook />
+				</div>
+			</div>
+		</Layout.Content>
 	</>;
 }
 

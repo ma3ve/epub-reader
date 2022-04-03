@@ -18,11 +18,11 @@ export default NextAuth({
   ],
   secret: process.env.SECRET,
   callbacks: {
-    session: async ({session, user,token}) => {
-      session.user = user;
-      session.accessToken = token.accessToken
-      console.log(token)
-      return session
-    }
+    jwt: ({token, account })=> {
+      if (account?.access_token) {
+        token.access_token = account.access_token;
+      }
+      return token;
+    },
   },
 });
