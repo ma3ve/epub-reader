@@ -5,7 +5,7 @@ import { Layout, Button } from 'antd'
 
 function IndexPage() {
   const test = () => {
-    axios.post('/api/drive/book').then((res) => {
+    axios.get('/api/drive/books').then((res) => {
       console.log(res.data)
     })
   }

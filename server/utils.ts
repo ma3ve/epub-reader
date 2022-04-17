@@ -1,5 +1,4 @@
-import { OAuth2Client } from 'google-auth-library'
-import { drive_v3, google } from 'googleapis'
+import { google } from 'googleapis'
 
 export const getDrive = (access_token: string) => {
   // const google = new GoogleApis()

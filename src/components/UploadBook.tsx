@@ -1,47 +1,71 @@
 import React, { useState } from 'react'
-import { Upload, Button, Modal } from 'antd'
+import { Upload, Button, Modal, message } from 'antd'
 import axios from 'axios'
 import { UploadOutlined, InboxOutlined } from '@ant-design/icons'
+import { UploadRequestOption } from 'rc-upload/lib/interface'
+import { DraggerProps } from 'antd/lib/upload'
+import { UploadFile } from 'antd/lib/upload/interface'
+
 const { Dragger } = Upload
 type Props = {}
 
 function UploadBook({}: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const upload = (file: File) => {
+  const upload = (options: UploadRequestOption) => {
     const formData = new FormData()
-    formData.append('file', file)
-    // 	axios.post('/api/upload', formData, {
-    // 		headers: {
-    // 			'Content-Type': 'multipart/form-data'
-    // 		}
-    // 	})
-    // 		.then(res => {
-    // 			console.log(res)
-    // 		})
-    // 		.catch(err => {
-    // 			console.log(err)
-    // 		})
+    formData.append('file', options.file)
+    axios
+      .post('/api/drive/book', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        options.onSuccess(res.data)
+      })
+      .catch((err) => {
+        options.onError(err)
+        console.log(err)
+      })
   }
 
-  const props = {
+  const deleteFile = (file: UploadFile<any>) => {
+    axios
+      .delete(`/api/drive/book`, {
+        data: {
+          id: file.response.id,
+        },
+      })
+      .then((res) => {
+        message.success('Book Deleted')
+      })
+      .catch((err) => {
+        message.error('Something went wrong')
+      })
+  }
+
+  const props: DraggerProps = {
     name: 'file',
     multiple: true,
 
     onChange(info) {
       const { status } = info.file
-      if (status !== 'uploading') {
-        console.log(info.file, info.fileList)
-      }
       if (status === 'done') {
         console.log(`${info.file.name} file uploaded successfully.`)
       } else if (status === 'error') {
         console.log(`${info.file.name} file upload failed.`)
       }
     },
-    onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files)
+    beforeUpload(file) {
+      const isEpub = file.type === 'application/epub+zip'
+      if (!isEpub) {
+        message.error(`${file.name} is not a epub file`)
+      }
+      return isEpub || Upload.LIST_IGNORE
     },
+    onRemove: deleteFile,
+    customRequest: upload,
   }
   return (
     <>
@@ -51,7 +75,7 @@ function UploadBook({}: Props) {
       <Modal
         title="Upload a new Book"
         visible={isOpen}
-        onOk={() => console.log('upload')}
+        onOk={() => setIsOpen(false)}
         onCancel={() => setIsOpen(false)}
         okButtonProps={{ type: 'default' }}
         cancelButtonProps={{ danger: true }}

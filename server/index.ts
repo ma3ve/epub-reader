@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import next from 'next'
 import cookieParser from 'cookie-parser'
 import driveRouter from './drive'
+import bodyParser from 'body-parser'
 
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
@@ -13,7 +14,6 @@ const port = process.env.PORT || 3000
     await app.prepare()
     const server = express()
     server.use(cookieParser())
-
     // routes
     server.use('/api/drive', driveRouter)
 
