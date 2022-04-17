@@ -64,13 +64,18 @@ const uploadFile = async (
 }
 
 router.get('/books', async (req: Request, res: Response) => {
-  const { drive } = req
-  const folder = await getFolder(drive)
-  const response = await drive.files.list({
-    q: `'${folder.id}' in parents and mimeType = 'application/epub+zip'`,
-    fields: 'files(id, name, mimeType)',
-  })
-  res.send(response.data.files)
+  try {
+    const { drive } = req
+    const folder = await getFolder(drive)
+    const response = await drive.files.list({
+      q: `'${folder.id}' in parents and mimeType = 'application/epub+zip'`,
+      fields: 'files(id, name, mimeType)',
+    })
+    res.send(response.data.files)
+  } catch (error) {
+    console.log(JSON.stringify(error, null, 2))
+    res.status(500).send('something went wrong')
+  }
 })
 
 router.post('/book', upload.single('file'), async (req: Request, res: Response) => {
@@ -94,6 +99,29 @@ router.delete('/book', async (req: Request, res: Response) => {
     res.send('ok')
   } catch (error) {
     console.log(JSON.stringify(error, null, 2))
+    res.status(500).send('something went wrong')
+  }
+})
+
+router.get('/book/:id', async (req: Request, res: Response) => {
+  try {
+    const { drive } = req
+    const { id: fileId } = req.params
+    const response = await drive.files.get(
+      {
+        fileId: fileId,
+        alt: 'media',
+      },
+      {
+        responseType: 'arraybuffer',
+      }
+    )
+    console.log(response.data)
+    res.writeHead(200, { 'Content-Type': 'multipart/form-data' })
+    res.write(Buffer.from(response.data as ArrayBuffer), 'binary')
+    res.end(null, 'binary')
+  } catch (error) {
+    console.log(error)
     res.status(500).send('something went wrong')
   }
 })
