@@ -32,11 +32,7 @@ function UploadBook({}: Props) {
 
   const deleteFile = (file: UploadFile<any>) => {
     axios
-      .delete(`/api/drive/book`, {
-        data: {
-          id: file.response.id,
-        },
-      })
+      .delete(`/api/drive/book/${file.response.id}`)
       .then((res) => {
         message.success('Book Deleted')
       })

@@ -91,11 +91,11 @@ router.post('/book', upload.single('file'), async (req: Request, res: Response) 
   }
 })
 
-router.delete('/book', async (req: Request, res: Response) => {
+router.delete('/book/:id', async (req: Request, res: Response) => {
   try {
     const { drive } = req
-    const { id } = req.body
-    await drive.files.delete({ fileId: id })
+    const { id: fileId } = req.params
+    await drive.files.delete({ fileId })
     res.send('ok')
   } catch (error) {
     console.log(JSON.stringify(error, null, 2))
@@ -109,14 +109,13 @@ router.get('/book/:id', async (req: Request, res: Response) => {
     const { id: fileId } = req.params
     const response = await drive.files.get(
       {
-        fileId: fileId,
+        fileId,
         alt: 'media',
       },
       {
         responseType: 'arraybuffer',
       }
     )
-    console.log(response.data)
     res.writeHead(200, { 'Content-Type': 'multipart/form-data' })
     res.write(Buffer.from(response.data as ArrayBuffer), 'binary')
     res.end(null, 'binary')
